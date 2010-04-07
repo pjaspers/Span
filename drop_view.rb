@@ -9,7 +9,7 @@ class DropView < NSView
 	attr_accessor :text_label
 	
 	SINATRA_URL = "http://fierce-snow-64.heroku.com/p"
-	SECRET = "w00t"
+	SECRET = "secret_gedoe" # Crapola, is vervelend in de repo.
 	
 	def awakeFromNib
 		puts "Wakker worden uit de xib"
