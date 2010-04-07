@@ -3,12 +3,13 @@
 #
 # Created by Piet Jaspers on 05/04/10.
 # Copyright 2010 10to1. All rights reserved.
+require 'cgi'
 
 class DropView < NSView
 	attr_accessor :text_label
 
 	SINATRA_URL = "http://fierce-snow-64.heroku.com/p"
-	SECRET = "uwe_secret_code"
+	SECRET = "w00t"
   
 	def awakeFromNib
 		puts "Wakker worden uit de xib"
@@ -37,22 +38,19 @@ class DropView < NSView
 		sourceDragMask = sender.draggingSourceOperationMask
 		pboard = sender.draggingPasteboard
 		files = pboard.propertyListForType(NSFilenamesPboardType)
-		files.each do |file|
-			# data = NSData.dataWithContentsOfFile(file)
-			# puts data.to_s.dataUsingEncoding(NSUTF8StringEncoding)
-			send_http_post file
-			# puts "Schrijven van data"
-			# data.writeToFile("/Users/junkiesxl/test.png", :atomically => true)
-			# puts data
-			#MacRubyHTTP.post("http://www.postbin.org/1ka5qz6", {:payload => data, :delegation => self }) 
+		files.each do |file_path|
+			send_http_post file_path
 		end
 		return true
 	end
 	
-		def handle_query_response(response)
+	def handle_query_response(response)
 		puts response
     end
 	
+	def get_file_name(file_path)
+		CGI.escape(file_path.lastPathComponent.to_s)
+	end
 	# via deze http://www.cocoadev.com/index.pl?HTTPFileUpload
 	def send_http_post(file_path)
 	# creating the url request:
@@ -78,7 +76,7 @@ class DropView < NSView
 	post_body.appendData("Content-Disposition: form-data; name=\"secret\"\r\n\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 	post_body.appendData("#{SECRET}".dataUsingEncoding(NSUTF8StringEncoding))
 	post_body.appendData("\r\n--#{string_boundary}\r\n".dataUsingEncoding(NSUTF8StringEncoding))
-	post_body.appendData("Content-Disposition: form-data; name=\"name\"; filename=\"test.txt\"\r\n".dataUsingEncoding(NSUTF8StringEncoding))
+	post_body.appendData("Content-Disposition: form-data; name=\"name\"; filename=\"#{get_file_name file_path}\"\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 	post_body.appendData("Content-Type: application/octet-stream\r\n\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 	post_body.appendData(NSData.dataWithContentsOfFile(file_path))
 	post_body.appendData("\r\n--#{string_boundary}\r\n".dataUsingEncoding(NSUTF8StringEncoding))
