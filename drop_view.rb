@@ -47,7 +47,8 @@ class DropView < NSView
     end
 	
 	def get_file_name(file_path)
-		CGI.escape(file_path.lastPathComponent.to_s)
+		# S3 houdt niet van + -en
+		CGI.escape(file_path.lastPathComponent.to_s).gsub(/\+/,"_")
 	end
 	# via deze http://www.cocoadev.com/index.pl?HTTPFileUpload
 	def send_http_post(file_path)
