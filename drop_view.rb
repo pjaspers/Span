@@ -3,13 +3,11 @@
 #
 # Created by Piet Jaspers on 05/04/10.
 # Copyright 2010 10to1. All rights reserved.
+
 require 'cgi'
 
 class DropView < NSView
 	attr_accessor :text_label
-	
-	SINATRA_URL = "http://fierce-snow-64.heroku.com/p"
-	SECRET = "secret_gedoe" # Crapola, is vervelend in de repo.
 	
 	def awakeFromNib
 		puts "Wakker worden uit de xib"
@@ -55,7 +53,7 @@ class DropView < NSView
 	def send_http_post(file_path)
 		# creating the url request:
 		url_string = "http://www.postbin.org/1ka5qz6"
-		url_string = "#{SINATRA_URL}"
+		url_string = "#{NSUserDefaults.standardUserDefaults.stringForKey('SpicUrl')}"
 		@url = NSURL.URLWithString(url_string)
 		@request      = NSMutableURLRequest.requestWithURL(@url, 
 														   cachePolicy:NSURLRequestReloadIgnoringCacheData,
@@ -74,7 +72,7 @@ class DropView < NSView
 		post_body = NSMutableData.data
 		post_body.appendData("--#{string_boundary}\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 		post_body.appendData("Content-Disposition: form-data; name=\"secret\"\r\n\r\n".dataUsingEncoding(NSUTF8StringEncoding))
-		post_body.appendData("#{SECRET}".dataUsingEncoding(NSUTF8StringEncoding))
+		post_body.appendData("#{NSUserDefaults.standardUserDefaults.stringForKey('SpicSecret')}".dataUsingEncoding(NSUTF8StringEncoding))
 		post_body.appendData("\r\n--#{string_boundary}\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 		post_body.appendData("Content-Disposition: form-data; name=\"name\"; filename=\"#{get_file_name file_path}\"\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 		post_body.appendData("Content-Type: application/octet-stream\r\n\r\n".dataUsingEncoding(NSUTF8StringEncoding))
