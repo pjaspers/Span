@@ -32,6 +32,12 @@ class MyPreferencesController < NSWindowController
 	@url_field.setStringValue(defaults.stringForKey('SpicUrl'))
     @secret_field.setStringValue(defaults.stringForKey('SpicSecret'))
   end
+  
+	def windowWillClose(note)
+		NSUserDefaults.standardUserDefaults.setObject @url_field.stringValue, forKey:'SpicUrl'
+		NSUserDefaults.standardUserDefaults.setObject @secret_field.stringValue, forKey:'SpicSecret'
+	end
+
 
 end
 
