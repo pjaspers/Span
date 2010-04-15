@@ -1,3 +1,10 @@
+# dropitem.rb
+# Span
+#
+# Created by Piet Jaspers on 09/04/10.
+# Copyright 2010 10to1. All rights reserved.
+
+
 # drop_view.rb
 # Span
 #
@@ -6,17 +13,13 @@
 
 require 'cgi'
 
-class DropView < NSView
-	attr_accessor :progress_bar, :text_label
-		
-	def awakeFromNib
-		puts "Wakker worden uit de xib"
-		text_label.setStringValue("Drop something here")
-		# Nodig voor te drag te kunnen doen
+class DropItem < NSView
+	attr_accessor :text_label
+
+	def initWithFrame frame
 		self.registerForDraggedTypes([NSFilenamesPboardType])
-		test_progress_bar
+		return self;
 	end
-	
 	def draggingEntered(sender)
 		puts "En we zijn aant draggen"
 		text_label.setStringValue("Great, now drop it!")
@@ -81,25 +84,12 @@ class DropView < NSView
 		post_body.appendData(NSData.dataWithContentsOfFile(file_path))
 		post_body.appendData("\r\n--#{string_boundary}\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 		@request.setHTTPBody post_body
-		progress_bar.setDoubleValue 0.0
+		
 		connection   = NSURLConnection.connectionWithRequest(@request, delegate:self)
 	end
 	
-	def test_progress_bar
-		(1..100).each do |i|
-			progress_bar.setDoubleValue(i)
-		end
-	end
-	def connection(connection, didSendBodyData:bytesWritten, totalBytesWritten:totalBytesWritten, totalBytesExpectedToWrite:totalBytesExpectedToWrite)
-		puts "Written: #{bytesWritten} TotalBytesWritten: #{totalBytesWritten} TotalBytesExpectedToWrite: #{totalBytesExpectedToWrite}"
-		puts "Double: #{totalBytesWritten / (totalBytesExpectedToWrite/100)}"
-		progress_bar.setDoubleValue(totalBytesWritten / (totalBytesExpectedToWrite/100))
-
-	end
 	def connectionDidFinishLoading(connection)
 		puts "Klaar als een klontje."
-		progress_bar.stopAnimation self
-		progress_bar.setDoubleValue 100.0
 	end
 end
 
