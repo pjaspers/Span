@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>Span.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.10to1.span</string>
 	<key>CFBundleInfoDictionaryVersion</key>
