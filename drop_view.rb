@@ -5,16 +5,21 @@
 # Copyright 2010 10to1. All rights reserved.
 
 require 'cgi'
+require 'PJDockProgressIndicator'
 
 class DropView < NSView
-	attr_accessor :progress_bar, :text_label
-		
+	attr_accessor :progress_bar, :text_label, :height, :progressBar
+
 	def awakeFromNib
 		puts "Wakker worden uit de xib"
 		text_label.setStringValue("Drop something here")
 		# Nodig voor te drag te kunnen doen
 		self.registerForDraggedTypes([NSFilenamesPboardType])
-		test_progress_bar
+		@progressBar = PJDockProgressIndicator.alloc.init
+		@progressBar.maxValue = 1.0
+		@progressBar.minValue = 0.0
+		@progressBar.current = 1.0
+		@height = 0.0
 	end
 	
 	def draggingEntered(sender)
@@ -82,6 +87,7 @@ class DropView < NSView
 		post_body.appendData("\r\n--#{string_boundary}\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 		@request.setHTTPBody post_body
 		progress_bar.setDoubleValue 0.0
+		@progressBar.current = 0.0
 		connection   = NSURLConnection.connectionWithRequest(@request, delegate:self)
 	end
 	
@@ -92,10 +98,12 @@ class DropView < NSView
 	end
 	def connection(connection, didSendBodyData:bytesWritten, totalBytesWritten:totalBytesWritten, totalBytesExpectedToWrite:totalBytesExpectedToWrite)
 		puts "Written: #{bytesWritten} TotalBytesWritten: #{totalBytesWritten} TotalBytesExpectedToWrite: #{totalBytesExpectedToWrite}"
-		puts "Double: #{totalBytesWritten / (totalBytesExpectedToWrite/100)}"
+		puts "Double: #{(totalBytesWritten / (totalBytesExpectedToWrite/100))/10}"
 		progress_bar.setDoubleValue(totalBytesWritten / (totalBytesExpectedToWrite/100))
-
+		# hier mag iets langer over nagedacht worden
+		@progressBar.current = ((totalBytesWritten / (totalBytesExpectedToWrite/100))/10)*0.1
 	end
+	
 	def connectionDidFinishLoading(connection)
 		puts "Klaar als een klontje."
 		progress_bar.stopAnimation self
