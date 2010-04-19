@@ -45,6 +45,7 @@
 /* Begin PBXBuildFile section */
 		054341F5117CEE52007A0EDB /* blanco.png in Resources */ = {isa = PBXBuildFile; fileRef = 054341F3117CEE52007A0EDB /* blanco.png */; };
 		054341F6117CEE52007A0EDB /* white.png in Resources */ = {isa = PBXBuildFile; fileRef = 054341F4117CEE52007A0EDB /* white.png */; };
+		05904A9E117CF18800292728 /* PJDockProgressIndicator.rb in Resources */ = {isa = PBXBuildFile; fileRef = 05904A9D117CF18800292728 /* PJDockProgressIndicator.rb */; };
 		05B63E41116D25DF00C5AF81 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 05B63E40116D25DF00C5AF81 /* Preferences.xib */; };
 		05B63E56116D2B5400C5AF81 /* preferences_controller.rb in Resources */ = {isa = PBXBuildFile; fileRef = 05B63E55116D2B5400C5AF81 /* preferences_controller.rb */; };
 		05B63E92116D2EDD00C5AF81 /* app_controller.rb in Resources */ = {isa = PBXBuildFile; fileRef = 05B63E91116D2EDD00C5AF81 /* app_controller.rb */; };
@@ -74,6 +75,7 @@
 /* Begin PBXFileReference section */
 		054341F3117CEE52007A0EDB /* blanco.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blanco.png; sourceTree = "<group>"; };
 		054341F4117CEE52007A0EDB /* white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = white.png; sourceTree = "<group>"; };
+		05904A9D117CF18800292728 /* PJDockProgressIndicator.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = PJDockProgressIndicator.rb; sourceTree = "<group>"; };
 		05B63E40116D25DF00C5AF81 /* Preferences.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
 		05B63E55116D2B5400C5AF81 /* preferences_controller.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = preferences_controller.rb; sourceTree = "<group>"; };
 		05B63E91116D2EDD00C5AF81 /* app_controller.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = app_controller.rb; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				05904A9D117CF18800292728 /* PJDockProgressIndicator.rb */,
 				05D46286116A298F007C401F /* MyWindowController.rb */,
 				4DE339F60D74FCDD00ADB6EE /* rb_main.rb */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
@@ -258,6 +261,7 @@
 				05C230591178615400D569CC /* Span.icns in Resources */,
 				054341F5117CEE52007A0EDB /* blanco.png in Resources */,
 				054341F6117CEE52007A0EDB /* white.png in Resources */,
+				05904A9E117CF18800292728 /* PJDockProgressIndicator.rb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
