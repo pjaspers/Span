@@ -8,22 +8,22 @@ require 'cgi'
 require 'PJDockProgressIndicator'
 
 class DropView < NSView
-	attr_accessor :progress_bar, :text_label, :height, :progressBar
+	attr_accessor :progress_bar, :text_label, :progress_label, :height, :dock_icon, :received_data
 
 	def awakeFromNib
-		puts "Wakker worden uit de xib"
 		text_label.setStringValue("Drop something here")
+		progress_bar.setHidden true
+		progress_label.setHidden true
 		# Nodig voor te drag te kunnen doen
 		self.registerForDraggedTypes([NSFilenamesPboardType])
-		@progressBar = PJDockProgressIndicator.alloc.init
-		@progressBar.maxValue = 1.0
-		@progressBar.minValue = 0.0
-		@progressBar.current = 1.0
+		@dock_icon = PJDockProgressIndicator.alloc.init
+		@dock_icon.maxValue = 1.0
+		@dock_icon.minValue = 0.0
+		@dock_icon.current = 1.0
 		@height = 0.0
 	end
 	
 	def draggingEntered(sender)
-		puts "En we zijn aant draggen"
 		text_label.setStringValue("Great, now drop it!")
 		# Deze hieronder zorgt ervoor dat het draggen werkt,
 		# zijn nog veel ander opties voor. Heb deze even gekozen
@@ -32,13 +32,17 @@ class DropView < NSView
 	end
 	
 	def draggingEnded(sender)
-		puts "En we zijn gestopt met draggen"
-		text_label.setStringValue("Great, you dropped it!")
+		# text_label.setStringValue("Great, you dropped it!")
 	end
+	
 	# Hier moeten we ,volgens de docs, de bulk van het werk in doen
 	# Doet tot nu toe niet meer als zeggen waar de file vandaan komt.
 	def performDragOperation(sender) 
-		text_label.setStringValue("Drop something here")
+		text_label.setHidden true
+		progress_bar.setHidden false
+		progress_label.setHidden false
+		progress_label.setStringValue "0"
+
 		sourceDragMask = sender.draggingSourceOperationMask
 		pboard = sender.draggingPasteboard
 		files = pboard.propertyListForType(NSFilenamesPboardType)
@@ -56,6 +60,7 @@ class DropView < NSView
 		# S3 houdt niet van + -en
 		CGI.escape(file_path.lastPathComponent.to_s).gsub(/\+/,"_")
 	end
+	
 	# via deze http://www.cocoadev.com/index.pl?HTTPFileUpload
 	def send_http_post(file_path)
 		# creating the url request:
@@ -71,7 +76,6 @@ class DropView < NSView
 		# geen idee wat dit precies doet, maar tis nodig.
 		string_boundary = "0xKhTmLbOuNdArY" 
 		content_type = "multipart/form-data; boundary=#{string_boundary}"
-		puts content_type
 		
 		@request.addValue(content_type, :forHTTPHeaderField => "Content-Type")
 		
@@ -86,28 +90,68 @@ class DropView < NSView
 		post_body.appendData(NSData.dataWithContentsOfFile(file_path))
 		post_body.appendData("\r\n--#{string_boundary}\r\n".dataUsingEncoding(NSUTF8StringEncoding))
 		@request.setHTTPBody post_body
+		
 		progress_bar.setDoubleValue 0.0
-		@progressBar.current = 0.0
+		@dock_icon.current = 0.0
+		
 		connection   = NSURLConnection.connectionWithRequest(@request, delegate:self)
+		if connection
+			@received_data = NSMutableData.data
+		end
 	end
 	
 	def test_progress_bar
+	progress_label.setHidden false
 		(1..100).each do |i|
+			progress_label.setStringValue "#{i}"
 			progress_bar.setDoubleValue(i)
 		end
 	end
+	
 	def connection(connection, didSendBodyData:bytesWritten, totalBytesWritten:totalBytesWritten, totalBytesExpectedToWrite:totalBytesExpectedToWrite)
-		puts "Written: #{bytesWritten} TotalBytesWritten: #{totalBytesWritten} TotalBytesExpectedToWrite: #{totalBytesExpectedToWrite}"
-		puts "Double: #{(totalBytesWritten / (totalBytesExpectedToWrite/100))/10}"
-		progress_bar.setDoubleValue(totalBytesWritten / (totalBytesExpectedToWrite/100))
+		# puts "Written: #{bytesWritten} TotalBytesWritten: #{totalBytesWritten} TotalBytesExpectedToWrite: #{totalBytesExpectedToWrite}"
+		# puts "Double: #{(totalBytesWritten / (totalBytesExpectedToWrite/100))/10}"
+		progress_label.setStringValue "#{(totalBytesWritten / (totalBytesExpectedToWrite/100))}"
+
+		@progress_bar.setDoubleValue(totalBytesWritten / (totalBytesExpectedToWrite/100))
 		# hier mag iets langer over nagedacht worden
-		@progressBar.current = ((totalBytesWritten / (totalBytesExpectedToWrite/100))/10)*0.1
+		@dock_icon.current = ((totalBytesWritten / (totalBytesExpectedToWrite/100))/10)*0.1
+	end
+	
+	def connection(connection, didReceiveResponse:response)
+		# This method is called when the server has determined that it
+		# has enough information to create the NSURLResponse.
+ 
+		# It can be called multiple times, for example in the case of a
+		# redirect, so each time we reset the data.
+		@received_data.setLength 0
+	end
+	
+	def connection(connection, didReceiveData:data)
+		# Append the new data to receivedData.
+		# receivedData is an instance variable declared elsewhere.
+		@received_data.appendData data
+	end
+
+	# Copies string to clipboard
+	def copy_string_to_clipboard(string)
+		pb = NSPasteboard.generalPasteboard
+		types = NSArray.arrayWithObjects(NSStringPboardType, nil)
+		pb.declareTypes(types,owner:self)
+		pb.setString(string, forType:NSStringPboardType)
 	end
 	
 	def connectionDidFinishLoading(connection)
-		puts "Klaar als een klontje."
-		progress_bar.stopAnimation self
-		progress_bar.setDoubleValue 100.0
+		@progress_bar.setHidden true
+		@progress_label.setHidden true
+		result = NSString.alloc.initWithData(@received_data, encoding:NSUTF8StringEncoding)
+		copy_string_to_clipboard(result)
+		text_label.setHidden false
+		text_label.setStringValue("Copied URL to clipboard")
+
+
+
+		
 	end
 end
 
