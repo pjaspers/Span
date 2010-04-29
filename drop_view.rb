@@ -6,11 +6,16 @@
 
 require 'cgi'
 require 'PJDockProgressIndicator'
+require 'growl'
 
 class DropView < NSView
 	attr_accessor :progress_bar, :text_label, :progress_label, :height, :dock_icon, :received_data
-
+	NOTIFICATION = 'Copied to clipboard'
 	def awakeFromNib
+		@g = Growl::Notifier.sharedInstance
+		@g.delegate = self
+		@g.register 'Span', [NOTIFICATION]
+
 		text_label.setStringValue("Drop something here")
 		progress_bar.setHidden true
 		progress_label.setHidden true
@@ -148,6 +153,7 @@ class DropView < NSView
 		copy_string_to_clipboard(result)
 		text_label.setHidden false
 		text_label.setStringValue("Copied URL to clipboard")
+		@g.notify(NOTIFICATION, "Upload complete", NOTIFICATION)
 
 
 
